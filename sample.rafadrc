@@ -1,0 +1,56 @@
+# some comments
+
+# a blank line
+# now a section for one file
+
+FILE /var/log/messages
+
+# WHEN-MULTIPLE READ-FIRST   # alphabetically
+# WHEN-MULTIPLE READ-LAST    # alphabetically
+# WHEN-MULTIPLE READ-OLDEST
+# WHEN-MULTIPLE READ-NEWEST
+# WHEN-MULTIPLE READ-ALL
+# ORDER-BY ALPHABETIC
+# ORDER-BY TIME
+
+# FILTER someprogname
+# FILTER-OUTPUT-FILE  STDOUT
+# FILTER-INPUT-FILE
+# RUN-FILTER-ONLY-ON-CHANGES
+# LINE-SEPARATOR-PATTERN \r\n
+
+# REREAD-FROM-START
+
+CONDITION  some sort of optional description
+UNLESS syslogd .* restart
+MATCH (... \d+ \d+:\d+:\d+) (\S+) (.* restart .*)
+VARIABLE 1 => date
+VARIABLE 2 => machine
+VARIABLE 3 => subsystem
+VARIABLE 4 => message
+EMAIL-TO       greg.baker@ifost.org.au
+EMAIL-SUBJECT  %(subsystem)s restarted
+EMAIL-BODY-UNTIL  EOM
+On %(date)s,  %(subsystem)s restarted on %(machine)s
+EOM
+ACTION gnpc --message --when %(date)s --system %(machine)s --text "%(subsystem)s restarted"
+ACTION-STDIN-UNTIL EOM
+EOM
+# more actions.. can have as many as we like.
+# we should also have a plug-in architecture to put in other things here.
+# Definitely I want to have a MESSAGE/ALERT thingy here (e.g. like opcmsg)
+# which can work over natted networks.
+END-CONDITION
+
+CONDITION
+UNLESS kernel
+# no MATCH clause here today thanks
+SKIP-REMAINING-CONDITIONS
+END-CONDITION
+
+# I'm thinking of having a CONDITION-NAME xxxyz so that we could 
+# SKIP-TO xxxyz
+
+### many, many more CONDITIONs
+
+END-FILENAME
